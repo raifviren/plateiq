@@ -7,10 +7,10 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ..constants import CONST_USER_TYPE
-from ..exceptions import InvalidInputError
-from ..models import User
-from ..utils import update_selected, is_phone_valid
+from accounting.constants import CONST_USER_TYPE
+from accounting.exceptions import InvalidInputError
+from accounting.models import User, Vendor
+from accounting.utils import update_selected, is_phone_valid
 
 
 class BasicUserReadSerializer(serializers.ModelSerializer):
@@ -95,3 +95,16 @@ class UserSerializer(serializers.ModelSerializer):
         if not is_phone_valid(mobile):
             raise ValidationError('"{0}" should be in format +919999999999(15 digits allowed)'.format(mobile))
         return mobile
+
+
+class VendorSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=True)
+
+    # store = StoreSerializer(required=True)
+
+    class Meta:
+        model = Vendor
+        fields = ('user', 'store')
+
+    def create(self, validated_data):
+        pass

@@ -9,10 +9,10 @@ from django.db.utils import IntegrityError
 from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 
-from ..exceptions import BaseInputError
-from ..models import User
-from ..response import ResponseWrapper, ErrorTemplate
-from ..serializers import UserReadSerializer, UserSerializer
+from accounting.exceptions import BaseInputError
+from accounting.models import User
+from accounting.response import ResponseWrapper, ErrorTemplate
+from accounting.serializers import UserReadSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):

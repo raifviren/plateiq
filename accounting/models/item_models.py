@@ -18,3 +18,9 @@ class Item(BaseClass):
     name = models.CharField(_('Name'), max_length=CONST_LENGTH_NAME)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     price = models.FloatField(max_length=99999.99)
+
+    class Meta:
+        unique_together = ['name', 'branch']
+        indexes = [
+            models.Index(fields=['name', 'branch']),
+        ]

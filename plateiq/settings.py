@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounting',
     'rest_framework',
+    'boto3',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -144,6 +146,7 @@ AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 AWS_S3_HOST = os.environ['AWS_S3_HOST']
 AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_DEFAULT_ACL = None
 
 # TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
 # TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
@@ -172,4 +175,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+DJANGO_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+SITE_ROOT = os.path.dirname(DJANGO_ROOT)
+
+if os.environ.get('ENV', 'LOCAL') == 'LOCAL':
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "static"),
+    ]
+    # STATIC_ROOT = os.path.join(BASE_DIR, "static")
+else:
+    STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'static'))
+
+SITE_NAME = os.path.basename(DJANGO_ROOT)
+
+MEDIA_ROOT = os.path.normpath(os.path.join(SITE_ROOT, 'media'))
+
+MEDIA_URL = '/media/'
+
 STATIC_URL = '/static/'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'

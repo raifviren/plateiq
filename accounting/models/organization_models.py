@@ -8,9 +8,10 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from accounting.constants import CONST_ORGANIZATION_TYPE
+from accounting.utils import upload_image_to
 from .base_model import BaseClass
-from ..constants import CONST_ORGANIZATION_TYPE
-from ..utils import upload_image_to
+from .user_models import get_super_user
 
 CONST_LENGTH_NAME = 30
 
@@ -31,8 +32,10 @@ class Organization(BaseClass):
 
 class Store(BaseClass):
     """Store entity owned by a single Owner."""
-    organization = models.OneToOneField(Organization, on_delete=models.CASCADE)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, null=False, blank=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stores", on_delete=models.CASCADE, null=False,
+                              blank=False,
+                              default=get_super_user)
 
     class Meta(object):
         verbose_name = 'Store'
@@ -44,8 +47,8 @@ class Store(BaseClass):
 
 class Branch(BaseClass):
     """Branch entity which comes under a single Store."""
-    organization = models.OneToOneField(Organization, on_delete=models.CASCADE)
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, null=False, blank=False)
+    store = models.ForeignKey(Store, related_name="branches", on_delete=models.CASCADE, null=False, blank=False)
 
     class Meta(object):
         verbose_name = 'Branch'

@@ -4,21 +4,40 @@ Created at 13/06/20
 """
 from __future__ import unicode_literals, absolute_import
 
+import random
+import string
+
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from accounting.constants import CONST_USER_TYPE
+from accounting.utils import upload_image_to
 from .base_model import BaseClass
-from .organization_models import Organization
-from ..constants import CONST_USER_TYPE
-from ..utils import upload_image_to
 
 # Create your models here.
 
 # Constants
 USER_PHONE_MAX_LEN = 15
+
+
+def get_super_user():
+    """
+    Get first superuser from the User table and returns it/ If no user exist then
+    create one on the fly and returns it.
+    """
+    user = User.objects.filter(is_superuser=True)
+    if not user:
+        valid_string_value = string.ascii_letters + string.digits
+        user = User(email=''.join([random.choice(valid_string_value) for _ in range(8)]) \
+                          + '@plateiq.com')
+        user.set_password(''.join([random.choice(valid_string_value) for _ in range(8)]))
+        user.save()
+    else:
+        user = user[0]
+    return user.id
 
 
 class User(BaseClass, AbstractUser):
@@ -96,7 +115,7 @@ class User(BaseClass, AbstractUser):
 
 class Owner(BaseClass):
     """model for Purchaser/Buyer"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
 
     class Meta(object):
         verbose_name = 'Merchant'
@@ -108,8 +127,8 @@ class Owner(BaseClass):
 
 class Vendor(BaseClass):
     """model for Vendor/Seller"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    store = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
+    store = models.ForeignKey("Store", related_name="vendors", on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self):
         return str(self.user.first_name)
