@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='document',
             name='created_by',
-            field=models.ForeignKey(default=accounting.models.user_models.get_super_user, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(default=accounting.models.user_models.get_super_user_id, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
             model_name='invoice',
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='store',
             name='owner',
-            field=models.ForeignKey(default=accounting.models.user_models.get_super_user, on_delete=django.db.models.deletion.CASCADE, related_name='stores', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(default=accounting.models.user_models.get_super_user_id, on_delete=django.db.models.deletion.CASCADE, related_name='stores', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
             model_name='vendor',

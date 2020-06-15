@@ -5,11 +5,23 @@ Created at 13/06/20
 import os
 import re
 import uuid
+import json
+import datetime
 
 import boto
 from boto.s3.key import Key
 from django.conf import settings
 from django.utils.timezone import now
+
+
+class DocumentJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, uuid.UUID):
+            # if the obj is uuid, we simply return the value of uuid
+            return obj.hex
+        elif isinstance(obj, datetime.date):
+            return obj.strftime('%Y-%m-%d')
+        return json.JSONEncoder.default(self, obj)
 
 
 def upload_image_to(instance, filename):

@@ -37,6 +37,11 @@ def get_super_user():
         user.save()
     else:
         user = user[0]
+    return user
+
+
+def get_super_user_id():
+    user = get_super_user()
     return user.id
 
 

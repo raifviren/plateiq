@@ -14,7 +14,7 @@ from .base_model import BaseClass
 from .item_models import Item
 from .organization_models import Branch
 from .user_models import Vendor
-from .user_models import get_super_user
+from .user_models import get_super_user_id
 
 CONST_LENGTH_NAME = 30
 
@@ -25,9 +25,9 @@ class Document(BaseClass):
                             blank=False,
                             upload_to=upload_image_to)
     is_digitized = models.BooleanField(default=False)
-    meta_data = JSONField()
+    meta_data = JSONField(null=True,blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, blank=False,
-                                   default=get_super_user)
+                                   default=get_super_user_id)
 
 
 class Invoice(BaseClass):
@@ -38,7 +38,7 @@ class Invoice(BaseClass):
                                    blank=False)
     date = models.DateField(blank=False, null=False)
     total_amount = models.FloatField(max_length=99999999.99, null=False, blank=False)
-    document = models.OneToOneField(Document, null=True, on_delete=models.CASCADE)
+    document = models.OneToOneField(Document, on_delete=models.CASCADE)
 
     class Meta:
         """

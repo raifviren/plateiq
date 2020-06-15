@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from accounting.constants import CONST_ORGANIZATION_TYPE
 from accounting.utils import upload_image_to
 from .base_model import BaseClass
-from .user_models import get_super_user
+from .user_models import get_super_user_id
 
 CONST_LENGTH_NAME = 30
 
@@ -35,7 +35,7 @@ class Store(BaseClass):
     organization = models.OneToOneField(Organization, on_delete=models.CASCADE, null=False, blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="stores", on_delete=models.CASCADE, null=False,
                               blank=False,
-                              default=get_super_user)
+                              default=get_super_user_id)
 
     class Meta(object):
         verbose_name = 'Store'

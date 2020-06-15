@@ -195,4 +195,5 @@ MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+if os.environ.get('ENABLE_S3_STORAGE') in ['TRUE', 'True', True]:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
