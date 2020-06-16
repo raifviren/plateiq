@@ -22,28 +22,10 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(editable=False)),
                 ('updated_at', models.DateTimeField(editable=False)),
                 ('name', models.CharField(max_length=30, unique=True, verbose_name='Name')),
-                ('logo', models.ImageField(blank=True, help_text='Organization logo used for display', null=True, upload_to=accounting.utils.upload_image_to)),
-                ('type', models.CharField(blank=True, choices=[('store', 'store'), ('branch', 'branch')], max_length=20)),
-            ],
-            options={
-                'ordering': ['-created_at'],
-                'abstract': False,
-            },
-        ),
-        migrations.AlterField(
-            model_name='user',
-            name='user_type',
-            field=models.CharField(blank=True, choices=[('vendor', 'vendor'), ('owner', 'owner'), ('customer', 'customer'), ('admin', 'admin')], max_length=20),
-        ),
-        migrations.CreateModel(
-            name='Vendor',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, help_text='Unique ID', primary_key=True, serialize=False)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(editable=False)),
-                ('updated_at', models.DateTimeField(editable=False)),
-                ('store', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounting.Organization')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('logo', models.ImageField(blank=True, help_text='Organization logo used for display', null=True,
+                                           upload_to=accounting.utils.upload_image_to)),
+                ('type',
+                 models.CharField(blank=True, choices=[('store', 'store'), ('branch', 'branch')], max_length=20)),
             ],
             options={
                 'ordering': ['-created_at'],
@@ -57,26 +39,15 @@ class Migration(migrations.Migration):
                 ('is_deleted', models.BooleanField(default=False)),
                 ('created_at', models.DateTimeField(editable=False)),
                 ('updated_at', models.DateTimeField(editable=False)),
-                ('organization', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='accounting.Organization')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('organization',
+                 models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='accounting.Organization')),
+                ('owner', models.ForeignKey(default=accounting.models.user_models.get_super_user_id,
+                                            on_delete=django.db.models.deletion.CASCADE, related_name='stores',
+                                            to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'Store',
                 'verbose_name_plural': 'Stores',
-            },
-        ),
-        migrations.CreateModel(
-            name='Owner',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, help_text='Unique ID', primary_key=True, serialize=False)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(editable=False)),
-                ('updated_at', models.DateTimeField(editable=False)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'Merchant',
-                'verbose_name_plural': 'Merchants',
             },
         ),
         migrations.CreateModel(
@@ -86,12 +57,54 @@ class Migration(migrations.Migration):
                 ('is_deleted', models.BooleanField(default=False)),
                 ('created_at', models.DateTimeField(editable=False)),
                 ('updated_at', models.DateTimeField(editable=False)),
-                ('organization', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='accounting.Organization')),
-                ('store', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounting.Store')),
             ],
             options={
                 'verbose_name': 'Branch',
                 'verbose_name_plural': 'Branches',
             },
+        ),
+        migrations.CreateModel(
+            name='Vendor',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, help_text='Unique ID', primary_key=True, serialize=False)),
+                ('is_deleted', models.BooleanField(default=False)),
+                ('created_at', models.DateTimeField(editable=False)),
+                ('updated_at', models.DateTimeField(editable=False)),
+                ('store', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='vendors',
+                                            to='accounting.Store')),
+                (
+                'user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'ordering': ['-created_at'],
+                'abstract': False,
+            },
+        ),
+
+        migrations.CreateModel(
+            name='Owner',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, help_text='Unique ID', primary_key=True, serialize=False)),
+                ('is_deleted', models.BooleanField(default=False)),
+                ('created_at', models.DateTimeField(editable=False)),
+                ('updated_at', models.DateTimeField(editable=False)),
+                (
+                'user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Merchant',
+                'verbose_name_plural': 'Merchants',
+            },
+        ),
+        migrations.AddField(
+            model_name='branch',
+            name='organization',
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='accounting.Organization'),
+        ),
+        migrations.AddField(
+            model_name='branch',
+            name='store',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='branches',
+                                    to='accounting.Store'),
         ),
     ]

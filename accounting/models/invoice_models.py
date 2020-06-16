@@ -26,7 +26,7 @@ class Document(BaseClass):
                             upload_to=upload_image_to)
     is_digitized = models.BooleanField(default=False)
     meta_data = JSONField(null=True,blank=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, blank=False,
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False,
                                    default=get_super_user_id)
 
 
@@ -34,8 +34,7 @@ class Invoice(BaseClass):
     """An invoice registered on the system."""
     branch = models.ForeignKey(Branch, related_name="invoices", on_delete=models.CASCADE, null=False, blank=False)
     vendor = models.ForeignKey(Vendor, related_name="invoices", on_delete=models.CASCADE, null=False, blank=False)
-    invoice_num = models.CharField(_('Invoice Number'), max_length=CONST_LENGTH_NAME, null=False,
-                                   blank=False)
+    invoice_num = models.CharField(_('Invoice Number'), max_length=CONST_LENGTH_NAME,blank=False)
     date = models.DateField(blank=False, null=False)
     total_amount = models.FloatField(max_length=99999999.99, null=False, blank=False)
     document = models.OneToOneField(Document, on_delete=models.CASCADE)

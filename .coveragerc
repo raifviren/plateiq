@@ -1,0 +1,22 @@
+[run]
+
+branch = True
+
+timid = True
+
+source =
+    accounting
+
+
+omit =
+    */tests/*
+    */migrations/*
+    */apps.py
+    plateiq/wsgi.py
+    plateiq/celery.py
+    accounting/views/organisation_views.py
+    accounting/views/user_views.py
+    accounting/serializers/organisation_serializers.py
+    accounting/serializers/user_serializers.py
+    accounting/models/organization_models.py
+    accounting/models/user_models.py

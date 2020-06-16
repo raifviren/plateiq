@@ -4,6 +4,7 @@ Created at 14/06/20
 """
 from __future__ import unicode_literals
 
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -63,10 +64,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('mobile', 'first_name', 'last_name', 'email', 'photo', 'country_code', 'user_type')
 
+    @transaction.atomic
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         return user
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         update_selected(instance, validated_data, ['first_name', 'last_name', 'country_code'])
         instance.photo = validated_data.get('photo', instance.photo)

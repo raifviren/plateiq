@@ -5,9 +5,12 @@ Created at 15/06/20
 import random
 import string
 
+from django.db import transaction
+
 from accounting.models import Branch, Organization, Store, get_super_user
 
 
+@transaction.atomic
 def get_or_create_store():
     organization, _ = Organization.objects.get_or_create(
         name='PlateIq Store',
@@ -21,6 +24,7 @@ def get_or_create_store():
     return store
 
 
+@transaction.atomic
 def get_or_create_branch():
     store = get_or_create_store()
     organization, _ = Organization.objects.get_or_create(

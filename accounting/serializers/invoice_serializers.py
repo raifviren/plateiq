@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import json
 
+from django.db import transaction
 from rest_framework import serializers
 
 import accounting
@@ -35,6 +36,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ('id', 'is_digitized', 'file', 'created_by', 'meta_data')
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         update_selected(instance, validated_data, ['is_digitized'])
         instance.save()
@@ -68,6 +70,7 @@ class InvoiceSerializer(serializers.Serializer):
     items = InvoiceItemSerializer(many=True, required=True)
     document_id = serializers.UUIDField(required=True)
 
+    @transaction.atomic
     def create(self, validated_data):
         vendor_data = validated_data.get('vendor')
         vendor_user = User.get_user_by_mobile(vendor_data['mobile'])
@@ -101,6 +104,7 @@ class InvoiceSerializer(serializers.Serializer):
                                            price=item_data['price'])
         return invoice
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         update_selected(instance, validated_data, ['invoice_num', 'date', 'total_amount'])
         InvoiceLineItem.objects.filter(invoice=instance).delete()

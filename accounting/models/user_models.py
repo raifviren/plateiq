@@ -31,8 +31,7 @@ def get_super_user():
     user = User.objects.filter(is_superuser=True)
     if not user:
         valid_string_value = string.ascii_letters + string.digits
-        user = User(email=''.join([random.choice(valid_string_value) for _ in range(8)]) \
-                          + '@plateiq.com')
+        user = User(mobile=''.join([random.choice(string.digits) for _ in range(10)]))
         user.set_password(''.join([random.choice(valid_string_value) for _ in range(8)]))
         user.save()
     else:

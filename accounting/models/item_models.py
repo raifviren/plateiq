@@ -15,9 +15,9 @@ CONST_LENGTH_NAME = 30
 
 class Item(BaseClass):
     """Item for a branch."""
-    name = models.CharField(_('Name'), max_length=CONST_LENGTH_NAME)
+    name = models.CharField(_('Name'), max_length=CONST_LENGTH_NAME, blank=False)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-    price = models.FloatField(max_length=99999.99)
+    price = models.FloatField(max_length=99999.99, blank=False)
 
     class Meta:
         unique_together = ['name', 'branch']

@@ -33,6 +33,11 @@ In the header line `<task-id>` is the JIRA task id, and `<task-summary>` is the 
 
 Also, optionally, you may include lines using the [smart commit syntax](https://confluence.atlassian.com/bitbucket/processing-jira-software-issues-with-smart-commit-messages-298979931.html) in your summary.
 
+### 1.2.2 Pre-commit checks
+
+1. Run `coverage run ./manage.py test` to run Django tests and ensure no errors
+2. Run `cov-check.sh` to check code coverage and ensure it give a pass message
+
 ### 1.2.3 commit and Merge
 
 1. `$ git add <your files..>`
