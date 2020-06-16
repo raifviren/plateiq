@@ -10,7 +10,7 @@ from django.db import transaction
 from django.utils.timezone import now
 
 from accounting.models import Branch, Store, Organization, get_super_user, Vendor, Invoice, InvoiceLineItem, Item, \
-    Document
+    Document, Owner
 
 
 @transaction.atomic
@@ -20,9 +20,10 @@ def get_or_create_store():
         type='store'
     )
     superuser = get_super_user()
+    owner, _ = Owner.objects.get_or_create(user=superuser)
     store, _ = Store.objects.get_or_create(
         organization=organization,
-        owner=superuser
+        owner=owner
     )
     return store
 
@@ -42,7 +43,7 @@ def get_or_create_branch():
 
 
 @transaction.atomic
-def get_or_create_vendor(store):
+def get_or_create_vendor(store=None):
     if store is None:
         store = get_or_create_store()
     superuser = get_super_user()
@@ -58,7 +59,7 @@ def create_document():
 
 
 @transaction.atomic
-def create_invoice(branch, vendor, invoice_num,create_item=True):
+def create_invoice(branch=None, vendor=None, invoice_num=None,create_item=True):
     if branch is None:
         branch = get_or_create_branch()
     if vendor is None:
@@ -98,8 +99,43 @@ def create_invoice(branch, vendor, invoice_num,create_item=True):
     return invoice
 
 
-def create_item(branch):
+def create_item(branch=None):
     if branch is None:
         branch = get_or_create_branch()
     item, _ = Item.objects.get_or_create(name="Item 1", branch=branch, price=10.0)
     return item
+
+
+def create_invoice_payload(branch=None, invoice_num=None):
+    if branch is None:
+        branch = get_or_create_branch()
+    if invoice_num is None:
+        invoice_num = 'INV' + ''.join([random.choice(string.digits) for _ in range(6)])
+    payload = {
+        "document_id": str(create_document().id),
+        "vendor": {
+            "first_name": "John",
+            "last_name": "Doe",
+            "mobile": "+9188888872",
+            "user_type": "vendor"
+        },
+        "branch_id": str(branch.id),
+        "invoice_num": invoice_num,
+        "date": now().strftime('%Y-%m-%d'),
+        "total_amount": "100.0",
+        "items": [
+            {
+                "name": "Item 1",
+                "price": "10.0",
+                "quantity": "5"
+            },
+            {
+                "name": "Item 2",
+                "price": "10.0",
+                "quantity": "5"
+            }
+        ]
+    }
+    return payload
+
+

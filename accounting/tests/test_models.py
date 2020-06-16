@@ -38,7 +38,7 @@ class InvoiceTestCase(TestCase):  # pylint: disable=too-many-public-methods
         The branch was not provided
         """
         with self.assertRaises(IntegrityError) as context:
-            invoice = Invoice(vendor=get_or_create_vendor(store=None), invoice_num='INV0001',
+            invoice = Invoice(vendor=get_or_create_vendor(), invoice_num='INV0001',
                               date="2020-06-15",
                               total_amount=100.0, document=create_document())
             invoice.save()
@@ -113,7 +113,7 @@ class InvoiceTestCase(TestCase):  # pylint: disable=too-many-public-methods
         Do not provide fields that can be defaulted and test their values
         """
         current_ts = now()
-        invoice = create_invoice(None, None, None)
+        invoice = create_invoice()
         invoice.save()
         self.assertEqual(False, invoice.is_deleted)
         self.assertNotEqual(None, invoice.created_at)
@@ -193,7 +193,7 @@ class InvoiceLineItemTestCase(TestCase):  # pylint: disable=too-many-public-meth
         The invoice was not provided
         """
         with self.assertRaises(IntegrityError) as context:
-            invoice_line_item = InvoiceLineItem(item=create_item(branch=None), quantity=10,
+            invoice_line_item = InvoiceLineItem(item=create_item(), quantity=10,
                                                 price=100.0)
             invoice_line_item.save()
             self.fail("'test_missing_invoice' did not get the expected error")
@@ -204,7 +204,7 @@ class InvoiceLineItemTestCase(TestCase):  # pylint: disable=too-many-public-meth
         The item was not provided
         """
         with self.assertRaises(IntegrityError) as context:
-            invoice_line_item = InvoiceLineItem(invoice=create_invoice(None, None, None, create_item=False),
+            invoice_line_item = InvoiceLineItem(invoice=create_invoice(create_item=False),
                                                 quantity=10,
                                                 price=100.0)
             invoice_line_item.save()
@@ -218,7 +218,7 @@ class InvoiceLineItemTestCase(TestCase):  # pylint: disable=too-many-public-meth
         branch = get_or_create_branch()
         with self.assertRaises(ValidationError) as context:
             invoice_line_item = InvoiceLineItem(item=create_item(branch),
-                                                invoice=create_invoice(branch, None, None, create_item=False),
+                                                invoice=create_invoice(branch=branch,create_item=False),
                                                 quantity=10)
             invoice_line_item.full_clean()
             invoice_line_item.save()
@@ -231,7 +231,7 @@ class InvoiceLineItemTestCase(TestCase):  # pylint: disable=too-many-public-meth
         """
         branch = get_or_create_branch()
         invoice_line_item = InvoiceLineItem(item=create_item(branch),
-                                            invoice=create_invoice(branch, None, None, create_item=False),
+                                            invoice=create_invoice(branch=branch,create_item=False),
                                             price=100.0)
         invoice_line_item.save()
         self.assertIsInstance(invoice_line_item, InvoiceLineItem)
@@ -245,7 +245,7 @@ class InvoiceLineItemTestCase(TestCase):  # pylint: disable=too-many-public-meth
         current_ts = now()
         branch = get_or_create_branch()
         invoice_line_item = InvoiceLineItem(item=create_item(branch),
-                                            invoice=create_invoice(branch, None, None, create_item=False),
+                                            invoice=create_invoice(branch=branch, create_item=False),
                                             price=100.0)
         invoice_line_item.save()
         self.assertEqual(False, invoice_line_item.is_deleted)
@@ -282,8 +282,8 @@ class ItemTestCase(TestCase):  # pylint: disable=too-many-public-methods
         The name was not provided
         """
         with self.assertRaises(ValidationError) as context:
-            item = Item(branch = get_or_create_branch(),
-                                                price=100.0)
+            item = Item(branch=get_or_create_branch(),
+                        price=100.0)
             item.full_clean()
             item.save()
             self.fail("'test_blank_name' did not get the expected error")
@@ -306,7 +306,7 @@ class ItemTestCase(TestCase):  # pylint: disable=too-many-public-methods
         Do not provide fields that can be defaulted and test their values
         """
         current_ts = now()
-        item = create_item(None)
+        item = create_item()
         item.save()
         self.assertIsInstance(item, Item)
         self.assertEqual(False, item.is_deleted)

@@ -9,8 +9,8 @@ from rest_framework import serializers
 
 from accounting.constants import CONST_ORGANIZATION_TYPE
 from accounting.exceptions import InvalidInputError
-from accounting.models import Store, Branch, Organization, User
-from .user_serializers import BasicUserReadSerializer
+from accounting.models import Store, Branch, Organization, User, Owner
+from .user_serializers import BasicUserReadSerializer, UserSerializer, OwnerSerializer
 
 
 def _instance_repr(instance):
@@ -35,7 +35,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
 class StoreSerializer(serializers.ModelSerializer):
     organization = OrganisationSerializer(required=True)
-    owner = serializers.CharField(required=True)
+    owner = UserSerializer(required=True)
 
     class Meta:
         model = Store
@@ -45,16 +45,20 @@ class StoreSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         organization_data = validated_data.get('organization')
         organization = Organization.objects.create(**organization_data)
-        owner = User.objects.get(pk=validated_data.get('owner'))
-        if owner is None:
-            raise InvalidInputError("Owner does not exists.")
+        owner_data = validated_data.get('owner')
+        owner_user = User.get_user_by_mobile(owner_data['mobile'])
+        if owner_user is None:
+            new_owner_user = User.objects.create(**owner_data)
+            owner = Owner.objects.create(user=new_owner_user)
+        else:
+            owner = Owner.objects.filter(user=owner_user).first()
         store = Store.objects.create(organization=organization, owner=owner)
         return store
 
     def to_representation(self, instance):
         data = _instance_repr(instance)
         data['organization'] = OrganisationSerializer(instance.organization).data
-        data['owner'] = BasicUserReadSerializer(instance.owner).data
+        data['owner'] = OwnerSerializer(instance.owner).data
         return data
 
 

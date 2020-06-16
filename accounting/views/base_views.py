@@ -44,7 +44,7 @@ class BaseViewSet(viewsets.ModelViewSet):
             if request.user and request.user.is_authenticated:
                 serializer.validated_data['created_by'] = self.request.user
             result = serializer.create(validated_data=serializer.validated_data)
-            return ResponseWrapper.response(self.serializer_class(result).data, status=status.HTTP_200_OK)
+            return ResponseWrapper.response(self.serializer_class(result).data, status=status.HTTP_201_CREATED)
         except BaseInputError as exception:
             print(exception)
             return ResponseWrapper.error_response(status.HTTP_400_BAD_REQUEST, ErrorTemplate.INVALID_REQUEST_BODY,
@@ -75,7 +75,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class(instance, data=request.data, partial=True)
         if serializer.is_valid():
             result = serializer.update(instance=instance, validated_data=request.data)
-            return ResponseWrapper.response(self.serializer_class(result).data, status.HTTP_201_CREATED)
+            return ResponseWrapper.response(self.serializer_class(result).data, status.HTTP_200_OK)
         else:
             return ResponseWrapper.error_serializer_response(status.HTTP_400_BAD_REQUEST, serializer)
 
@@ -83,8 +83,13 @@ class BaseViewSet(viewsets.ModelViewSet):
         try:
             instance = get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
             self.check_object_permissions(self.request, instance)
-            self.perform_destroy(instance)
-            return ResponseWrapper.response({'success': True}, status.HTTP_204_NO_CONTENT)
+            # self.perform_destroy(instance)
+            if hasattr(instance,'is_deleted'):
+                instance.is_deleted = True
+                instance.save()
+                return ResponseWrapper.response({'success': True}, status.HTTP_204_NO_CONTENT)
+            else:
+                return ResponseWrapper.error_response(status.HTTP_406_NOT_ACCEPTABLE, ErrorTemplate.PERMISSION_ERROR)
         except BaseInputError as exception:
             print(exception)
             return ResponseWrapper.error_response(status.HTTP_400_BAD_REQUEST, ErrorTemplate.INVALID_REQUEST_BODY,

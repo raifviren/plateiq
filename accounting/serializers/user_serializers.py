@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 from accounting.constants import CONST_USER_TYPE
 from accounting.exceptions import InvalidInputError
-from accounting.models import User, Vendor
+from accounting.models import User, Vendor, Owner
 from accounting.utils import update_selected, is_phone_valid
 
 
@@ -108,6 +108,19 @@ class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vendor
         fields = ('user', 'store')
+
+    def create(self, validated_data):
+        pass
+
+
+class OwnerSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=True)
+
+    # store = StoreSerializer(required=True)
+
+    class Meta:
+        model = Owner
+        fields = '__all__'
 
     def create(self, validated_data):
         pass

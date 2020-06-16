@@ -76,23 +76,23 @@ class InvoiceSerializer(serializers.Serializer):
         vendor_user = User.get_user_by_mobile(vendor_data['mobile'])
         if vendor_user is None:
             new_vendor_user = User.objects.create(**vendor_data)
-        branch = Branch.objects.get(pk=validated_data.get('branch_id'))
+        branch = Branch.objects.filter(pk=validated_data.get('branch_id')).first()
         if branch is None:
             raise InvalidInputError("Branch does not exists.")
         if vendor_user is None:
             vendor = Vendor.objects.create(user=new_vendor_user, store=branch.store)
         else:
             vendor = Vendor.objects.filter(user=vendor_user).first()
-        document = Document.objects.get(pk=validated_data.get('document_id'))
+        document = Document.objects.filter(pk=validated_data.get('document_id')).first()
         if document is None:
             raise InvalidInputError("Document does not exists.")
         document.meta_data = json.loads(json.dumps(validated_data, cls=DocumentJSONEncoder))
         document.is_digitized = True
         document.save()
         validated_data.pop('vendor')
+        items_data = validated_data.get('items')
         validated_data.pop('items')
         invoice = Invoice.objects.create(branch=branch, vendor=vendor, **validated_data)
-        items_data = validated_data.get('items')
         for item_data in items_data:
             item = Item.objects.filter(name=item_data['name'], branch=branch).first()
             if item is None:
