@@ -68,7 +68,7 @@ information
     * branch: associated branch
     * price: current price of item
 
-# 3 Instructions for Developers
+# 3. Instructions for Developers
 
 ## 3.1 Branches & Environments
 
@@ -134,7 +134,7 @@ We would follow the following standards:
 Additionally, look at this [presentation](http://python.net/~goodger/projects/pycon/2007/idiomatic/presentation.html)
 
 
-# 4 Development Environment Setup
+# 4. Development Environment Setup
 
 ## 4.1 Ubuntu 16.04
 
@@ -159,7 +159,7 @@ Additionally, look at this [presentation](http://python.net/~goodger/projects/py
     n) run "cd src"
     0) run "python manage.py runserver 0.0.0.0:8000"
 
-# 5 Developer:
+# 5. Developer:
     a) Virender Bhargav (raif.viren@gmail.com)
 
 # 6 Tech Stack:
@@ -170,9 +170,25 @@ Additionally, look at this [presentation](http://python.net/~goodger/projects/py
         d) RDS for postgresql deployment
 
     
-# 7 How to run test cases:
+# 7. How to run test cases:
 1. Run `coverage run ./manage.py test` to run Django tests and ensure no errors
 2. Run `cov-check.sh` to check code coverage and ensure it give a pass message
 
-# 8 Postman Collection:
+
+# 8. Work Flow:
+1. Create a store using "/api/v1/stores/" POST API
+2. Create a branch for store created above by using "/api/v1/branches/" POST API
+3. To allow a customer to provide a PDF document (invoice) to process
+    * Upload the pdf document using "/api/v1/documents/" POST API
+4. To track a document’s digitization status or to retrieve the structured invoice information
+    * Get Document Details using "api/v1/documents/<document_id>" GET API
+    * meta_data field contains structured invoice information
+5. To manually add digitized  information for a specific document 
+    * Create a invoice for given branch and document by using "/api/v1/invoices/" POST API
+6. To add/update more than one field at a time
+    * Update Invoice using "/api/v1/invoices/<invoice_id>" PUT API
+7. To mark a document as “digitized”
+    * Update Document using  "api/v1/documents/<document_id>" PUT API
+
+# 9. Postman Collection:
 https://www.getpostman.com/collections/822b4e0c266facb800f2 
