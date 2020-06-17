@@ -1,0 +1,16 @@
+[run]
+
+branch = True
+
+timid = True
+
+source =
+    accounting
+
+
+omit =
+    */tests/*
+    */migrations/*
+    */apps.py
+    plateiq/*
+

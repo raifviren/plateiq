@@ -120,3 +120,4 @@ pyenv.cfg
 pyvenv.cfg
 ..env.swp
 .DS_Store
+media/*
