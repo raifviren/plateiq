@@ -20,21 +20,33 @@ CONST_LENGTH_NAME = 30
 
 
 class Document(BaseClass):
-    """An document uploaded on the system."""
+    """An document uploaded on the system.
+    - file: to store the uploaded file
+    - is_digitized: flag to check if the document has been digitized
+    - meta_data: to store json of structured invoice.
+    - created_by : user who uploaded the document.
+    """
     file = models.FileField(null=False,
                             blank=False,
                             upload_to=upload_image_to)
     is_digitized = models.BooleanField(default=False)
-    meta_data = JSONField(null=True,blank=True)
+    meta_data = JSONField(null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False,
                                    default=get_super_user_id)
 
 
 class Invoice(BaseClass):
-    """An invoice registered on the system."""
+    """An invoice registered on the system.
+    - branch: Branch for which the invoice is to be created
+    - vendor: Vendor against whom the invoice is to be created
+    - invoice_num: Invoice Number (unique for a given vendor)
+    - date : date of invoice
+    - total_amount: total amount of invoice
+    - document: document against which this invoice has been created
+    """
     branch = models.ForeignKey(Branch, related_name="invoices", on_delete=models.CASCADE, null=False, blank=False)
     vendor = models.ForeignKey(Vendor, related_name="invoices", on_delete=models.CASCADE, null=False, blank=False)
-    invoice_num = models.CharField(_('Invoice Number'), max_length=CONST_LENGTH_NAME,blank=False)
+    invoice_num = models.CharField(_('Invoice Number'), max_length=CONST_LENGTH_NAME, blank=False)
     date = models.DateField(blank=False, null=False)
     total_amount = models.FloatField(max_length=99999999.99, null=False, blank=False)
     document = models.OneToOneField(Document, on_delete=models.CASCADE)

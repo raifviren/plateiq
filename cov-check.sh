@@ -1,6 +1,6 @@
 #!/bin/bash
 
-threshold=94
+threshold=70
 
 function check_cov {
   pct=`coverage report | tail -n 1 | awk '{print $6}' | sed 's/%$//g'`

@@ -14,12 +14,12 @@ class DocumentViewSet(BaseViewSet):
     permission_classes = ()
     authentication_classes = ()
     serializer_class = DocumentSerializer
-    queryset = Document.objects.all()
+    queryset = Document.objects.all().order_by('-created_at')
 
 
 class InvoiceViewSet(BaseViewSet):
     permission_classes = ()
     authentication_classes = ()
     serializer_class = InvoiceSerializer
-    queryset = Invoice.objects.all()
+    queryset = Invoice.objects.all().order_by('-created_at')
 

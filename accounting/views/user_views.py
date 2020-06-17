@@ -52,7 +52,7 @@ class UserViewSet(viewsets.ModelViewSet):
                                                       {})
             result = UserReadSerializer(user).data
             # result.update({'auth_token': user.get_or_create_jwt_authtoken()})
-            return ResponseWrapper.response(result, status=status.HTTP_200_OK)
+            return ResponseWrapper.response(result, status=status.HTTP_201_CREATED)
         except IntegrityError as exception:
             return ResponseWrapper.error_response(status.HTTP_400_BAD_REQUEST, ErrorTemplate.USER_ALREADY_EXISTS,
                                                   exception.args[0])
@@ -68,7 +68,7 @@ class UserViewSet(viewsets.ModelViewSet):
         try:
             result = serializer.update(instance=instance, validated_data=request.data)
             data = UserReadSerializer(result).data
-            return ResponseWrapper.response(data, status.HTTP_201_CREATED)
+            return ResponseWrapper.response(data, status.HTTP_200_OK)
         except BaseInputError as exception:
             return ResponseWrapper.error_response(status.HTTP_400_BAD_REQUEST, ErrorTemplate.INVALID_REQUEST_BODY,
                                                   exception.args[0])

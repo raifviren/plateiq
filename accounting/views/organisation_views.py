@@ -13,12 +13,12 @@ class StoreViewSet(BaseViewSet):
     permission_classes = ()
     authentication_classes = ()
     serializer_class = StoreSerializer
-    queryset = Store.objects.all()
+    queryset = Store.objects.all().order_by('-created_at')
 
 
 class BranchViewSet(BaseViewSet):
     permission_classes = ()
     authentication_classes = ()
     serializer_class = BranchSerializer
-    queryset = Branch.objects.all()
+    queryset = Branch.objects.all().order_by('-created_at')
 

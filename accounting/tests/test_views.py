@@ -13,8 +13,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
-from accounting.models import User, Invoice, Document, Store
-from accounting.tests.stub_methods import create_invoice_payload, create_invoice, create_document
+from accounting.models import User, Invoice, Document, Store, Branch
+from accounting.tests.stub_methods import create_invoice_payload, create_invoice, create_document, get_or_create_store
 
 
 class TestInvoiceViewSet(APITestCase):
@@ -202,7 +202,7 @@ class TestDocumentViewSet(APITestCase):
 
 class TestStoreViewSet(APITestCase):
     """
-    Test DocumentViewSet GET, POST methods
+    Test StoretViewSet GET, POST methods
     """
 
     def setUp(self):
@@ -249,10 +249,9 @@ class TestStoreViewSet(APITestCase):
         self.user.is_superuser = True
         self.user.save()
         self.client.login(username=self.mobile, password=self.password)
-        # owner =
         store_payload = {
             "organization": {
-                "name": "Ente Kada",
+                "name": "PlateIQ Store",
                 "type": "store"
             },
             "owner": {
@@ -270,3 +269,127 @@ class TestStoreViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json().get('count'), 1)
 
+
+class TestBranchViewSet(APITestCase):
+    """
+    Test BranchViewSet GET, POST methods
+    """
+
+    def setUp(self):
+        """
+        Dummy method to create AUTH_USER_MODEL
+        """
+        User.objects.all().delete()
+        Branch.objects.all().delete()
+        self.mobile = '+9199999999'
+        self.password = 'plateiqtest'
+        user_model = apps.get_model(settings.AUTH_USER_MODEL)
+        user_obj = user_model.objects.create(mobile=self.mobile)
+        user_obj.set_password(self.password)
+        user_obj.is_staff = True
+        user_obj.is_superuser = True
+        user_obj.save()
+        self.user = user_obj
+        self.client = APIClient()
+        self.url = '/api/v1/branches/'
+
+    def test_empty_get(self):
+        """
+        TestCase: What if a user send valid session in headers and makes get request
+        ExpectedOutput: Request must get status.HTTP_200_OK status code
+        User: staff user
+        """
+        self.user.is_staff = True
+        self.user.save()
+        self.client.login(username=self.mobile, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertDictEqual({u'count': 0,
+                              u'previous': None,
+                              u'results': [],
+                              u'next': None}, response.json())
+
+    def test_valid_post_get(self):
+        """
+        TestCase: What if a user send valid session in headers and upload valid content
+        ExpectedOutput: Request must get status.HTTP_201_CREATED status code
+        User: superuser
+        """
+        # Add permissions to access resources
+        self.user.is_superuser = True
+        self.user.save()
+        self.client.login(username=self.mobile, password=self.password)
+        store = get_or_create_store()
+        branch_payload = {
+            "organization": {
+                "name": "PlateIQ Branch 1",
+                "type": "branch"
+            },
+            "store": str(store.id)
+        }
+
+        response = self.client.post(self.url, branch_payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Test get call as well
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json().get('count'), 1)
+
+
+class TestUserViewSet(APITestCase):
+    """
+    Test BranchViewSet GET, POST methods
+    """
+
+    def setUp(self):
+        """
+        Dummy method to create AUTH_USER_MODEL
+        """
+        User.objects.all().delete()
+        self.mobile = '+9199999999'
+        self.password = 'plateiqtest'
+        user_model = apps.get_model(settings.AUTH_USER_MODEL)
+        user_obj = user_model.objects.create(mobile=self.mobile)
+        user_obj.set_password(self.password)
+        user_obj.is_staff = True
+        user_obj.is_superuser = True
+        user_obj.save()
+        self.user = user_obj
+        self.client = APIClient()
+        self.url = '/api/v1/users/'
+
+    def test_empty_get(self):
+        """
+        TestCase: What if a user send valid session in headers and makes get request
+        ExpectedOutput: Request must get status.HTTP_200_OK status code
+        User: staff user
+        """
+        self.user.is_staff = True
+        self.user.save()
+        self.client.login(username=self.mobile, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json().get('count'), 1)
+
+    def test_valid_post_get(self):
+        """
+        TestCase: What if a user send valid session in headers and upload valid content
+        ExpectedOutput: Request must get status.HTTP_201_CREATED status code
+        User: superuser
+        """
+        # Add permissions to access resources
+        self.user.is_superuser = True
+        self.user.save()
+        self.client.login(username=self.mobile, password=self.password)
+        user_payload = {
+            "first_name": "virender",
+            "last_name": "bhargav",
+            "mobile": "+919636426446"
+        }
+
+        response = self.client.post(self.url, user_payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Test get call as well
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json().get('count'), 2)

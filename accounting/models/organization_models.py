@@ -4,14 +4,13 @@ Created at 13/06/20
 """
 from __future__ import unicode_literals, absolute_import
 
-from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from accounting.constants import CONST_ORGANIZATION_TYPE
 from accounting.utils import upload_image_to
 from .base_model import BaseClass
-from .user_models import get_super_user_id, Owner
+from .user_models import Owner
 
 CONST_LENGTH_NAME = 30
 
@@ -19,7 +18,6 @@ CONST_LENGTH_NAME = 30
 class Organization(BaseClass):
     """
     Organization class
-
     """
     name = models.CharField(_('Name'), max_length=CONST_LENGTH_NAME, unique=True)
     logo = models.ImageField(null=True,

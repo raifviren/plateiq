@@ -1,21 +1,87 @@
-# Uber Referral
+# PlateIQ | Virender Bhargav
 
 This README includes instructions for developers and maintainers for this repository.
 
-# 1 Instructions for Developers
+# 1. Problem Statement
+At Plate IQ, we process thousands of customer invoices every day - and invoice digitization is at the center of everything we do.
+Customers send in their invoices (PDF files) and the Plate IQ system converts the (unstructured) data from the invoice into a structured format and saves it in an SQL database. At the minimum, this includes the vendor/seller, the purchaser/buyer, the invoice number and date, and each line item mentioned in the invoice. (Here are some examples of invoices on Google Image search​ to help you understand more about the type of information that Invoices generally contain. It is expected that you consider other useful information in your data model). These documents are then processed by our background processing engine using OCR and machine learning (or sometimes manually), structured information is generated ​and validated​,
+ 
+after which the document is marked “digitized” and the structured information is accessible to our customers.
+We want to mock this process in this assignment. ​Create a web service with the following requirements​:
+API endpoints for the end customer
+- To allow a customer to provide a PDF document (invoice) to process
+- To allow a customer to track a document’s digitization status
+- To allow a customer to retrieve the structured invoice information for a specified
+document, if the document status is digitized (simply return mock data in this case)
+API endpoints for internal users / other microservices
+- To allow a staff member (or another microservice) to manually add digitized / parsed
+(​structured​) information for a specific document
+- For example, if a staff member views the document and wishes to record in the
+Structured data tables that the Invoice Number is INV1234, they should be able
+to do so
+- It should be possible to add/update more than one field at a time, if the caller
+chooses to do so
+- It should not be mandatory to update all fields/information in the same call; it
+should be possible to independently and partially add/update each piece of
+information
+- To allow marking a document as “digitized”
 
-## 1.1 Branches & Environments
+# 2. Solution Approach
+* User: model(extends Django's AbstractUser) to represent any user who can use the system
+* Owner: model to represent Purchaser/Buyer
+    * OneToOne Relation with User
+    * All fields specific to owner will be added to this model
+* Vendor: model to represent Vendor/Seller
+    * has OneToOne Relation with User 
+    * All fields specific to vendor will be added to this model
+    * A vendor is related to one Store
+   
+* Organization: model to represent any organisation of the system
+* Store: Store entity owned by a single Owner
+    * has OneToOne Relation with Organization
+    * A store has a single Owner
+    * ex : MacDonalds/Pizza Hut/Dominoes
+* Branch: Branch entity which comes under a single Store
+    * has OneToOne Relation with Organization
+    * A branch comes under a single Store
+    * one store can have multiple branches. Ex: MacD Sector 41 Noida , MacD Sector 50 Noida
+    
+* Document - model to represent a document that can be uploaded on the system
+    * file: to store the uploaded file
+    * is_digitized: flag to check if the document has been digitized
+    * meta_data: to store json of structured invoice.
+    * created_by : user who uploaded the document.
+* Invoice - model to represent An invoice registered on the system
+    * branch: Branch for which the invoice is to be created
+    * vendor: Vendor against whom the invoice is to be created
+    * invoice_num: Invoice Number (unique for a given vendor) 
+    * date : date of invoice
+    * total_amount: total amount of invoice
+    * document: document against which this invoice has been created
+* InvoiceLineItem : model to represent an item present on single invoice(Association model for Invoice and Item)
+    * invoice: associated Invoice
+    * item: associated item
+    * quantity: quantity ordered
+    * price : price of item at time of invoice creation
+* Item: model to represent an item that can be present in invoice
+    * name: name of item
+    * branch: associated branch
+    * price: current price of item
 
-### 1.1.1 Branches
+# 3 Instructions for Developers
+
+## 3.1 Branches & Environments
+
+### 3.1.1 Branches
     There are 3 main branches namely, master, beta and develop. Other then that you must follow git flow to push your code to develop branch.
     So there are some strict rules when it comes to merging. These rules are given below
         a) You can merge "master" into "beta".
         b) You can merge "beta" into "master" and "develop".
         c) You must have to create apull request to merge code into beta and master branch.
 
-## 1.2 Commit Process
+## 3.2 Commit Process
 
-### 1.2.1 Commit Format
+### 3.2.1 Commit Format
 
 Use the multi-line format defined below (do not use `-m` and go through editor):
 
@@ -33,12 +99,12 @@ In the header line `<task-id>` is the JIRA task id, and `<task-summary>` is the 
 
 Also, optionally, you may include lines using the [smart commit syntax](https://confluence.atlassian.com/bitbucket/processing-jira-software-issues-with-smart-commit-messages-298979931.html) in your summary.
 
-### 1.2.2 Pre-commit checks
+### 3.2.2 Pre-commit checks
 
 1. Run `coverage run ./manage.py test` to run Django tests and ensure no errors
 2. Run `cov-check.sh` to check code coverage and ensure it give a pass message
 
-### 1.2.3 commit and Merge
+### 3.2.3 commit and Merge
 
 1. `$ git add <your files..>`
 2. `$ git commit` to create a commit
@@ -48,17 +114,17 @@ Also, optionally, you may include lines using the [smart commit syntax](https://
     2. `git add` all conflicted files resolved manually by you
     3. `$ git rebase --continue` to tell git that you have resolved the conflicts. This may ask you to create another commit.
 
-### 1.2.4 Push to remote
+### 3.2.4 Push to remote
 
 ```
 $ git push
 ```
 
-## 1.3 Coding Standards
+## 2.3 Coding Standards
 
-### 1.3.1 Python
+### 2.3.1 Python
 
-#### 1.3.1.1 Coding Standards
+#### 2.3.1.1 Coding Standards
 
 We would follow the following standards:
 
@@ -68,15 +134,15 @@ We would follow the following standards:
 Additionally, look at this [presentation](http://python.net/~goodger/projects/pycon/2007/idiomatic/presentation.html)
 
 
-# 2 Development Environment Setup
+# 4 Development Environment Setup
 
-## 2.1 Ubuntu 16.04
+## 4.1 Ubuntu 16.04
 
-### 2.1.1 Download and Installation
+### 4.1.1 Download and Installation
 
 -Suggested OS is Ubuntu 16.04. Install python3.7 before proceeding further: https://tecadmin.net/install-python-3-6-ubuntu-linuxmint/
 
-### 2.1.2 How to setup new development workspace
+### 4.1.2 How to setup new development workspace
     a) create a directory let say "uber-referral"
     b) run "cd path_to_directory"
     c) run "sudo apt-get install python3-venv"
@@ -93,53 +159,6 @@ Additionally, look at this [presentation](http://python.net/~goodger/projects/py
     n) run "cd src"
     0) run "python manage.py runserver 0.0.0.0:8000"
 
-
-## 3.1 Ubuntu 16.04 AWS Instance
-
-### 3.1.1 Launch Instance
-
-
-Begin the process of launching an instance from AMI image as shown in the following image:
-![Launch Instance](doc/img/launch-instance-01.png)
-
-Select `t2.small` instance type and choose configure instance details as shown in the following inage:
-![Choose Instance Type](doc/img/choose-instance-02.png)
-
-Continue to adding storage as shown in the following image:
-![Configure Instance Page](doc/img/launch-instance-03.png)
-
-Select `30` (GB) storage and proceed to configuring tags as shown in the following image:
-![Configure Storage](doc/img/launch-instance-04.png)
-
-Optionally add any tags and proceed to configuring security groups as shown in the following image:
-![Configure Tags](doc/img/launch-instance-05.png)
-
-Select `Select an existing security group` and choose `india-lead-gen-2018-sg` and proceed to 'review and launch' as shown in the following image:
-![Configure Security Group](doc/img/launch-instance-06.png)
-
-Review the instance configuration and proceed to launching as shown in the following image:
-![Review Instance Details](doc/img/launch-instance-07.png)
-
-Select the SSH key pair to use, accept the terms and launch the instance as shown in the following image:
-![Launch Instance](doc/img/launch-instance-08.png)
-
-### 3.1.2 Configuration
-For Setting up Django with Nginx, Gunicorn and  supervisor refer to http://michal.karzynski.pl/blog/2013/06/09/django-nginx-gunicorn-virtualenv-supervisor/
-
-# 4 QA Environment Setup
-
-A QA setup is a hybrid of a development setup and a production setup. Hence, as you'll see in the sections below - some sections refer '2 Development Environment Setup' and some refer to '3 Preprod Environment Setup'.
-
-## 4.1 Ubuntu 16.04
-
-### 4.1.1 Download and Installation
-
-Please refer section 2.1.1
-
-### 4.1.2 How to setup new development workspace
-
-Please refer section 2.1.2
-
 # 5 Developer:
     a) Virender Bhargav (raif.viren@gmail.com)
 
@@ -151,12 +170,9 @@ Please refer section 2.1.2
         d) RDS for postgresql deployment
 
     
-# 7 How to deploy new commit:
-    a) Login into appropriate server using pem file
-    b) switch user to plateiq
-        "sudo su - plateiq"
-    c) pull appropriate branch
-        for develop do
-            "git pull origin develop"       
-    d) exit and restart supervisor
-        "sudo service supervisor restart" 
+# 7 How to run test cases:
+1. Run `coverage run ./manage.py test` to run Django tests and ensure no errors
+2. Run `cov-check.sh` to check code coverage and ensure it give a pass message
+
+# 8 Postman Collection:
+https://www.getpostman.com/collections/822b4e0c266facb800f2 

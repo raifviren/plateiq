@@ -5,12 +5,10 @@ Created at 14/06/20
 from __future__ import absolute_import
 
 from django.conf.urls import url, include
-from accounting import views
-
 # -*- coding: utf-8 -*-
-from django.urls import path
 from rest_framework.routers import SimpleRouter
 
+from accounting import views
 
 app_name = 'community'
 
