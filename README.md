@@ -143,7 +143,7 @@ Additionally, look at this [presentation](http://python.net/~goodger/projects/py
 -Suggested OS is Ubuntu 16.04. Install python3.7 before proceeding further: https://tecadmin.net/install-python-3-6-ubuntu-linuxmint/
 
 ### 4.1.2 How to setup new development workspace
-    a) create a directory let say "uber-referral"
+    a) create a directory let say "plateiq-backend"
     b) run "cd path_to_directory"
     c) run "sudo apt-get install python3-venv"
     d) run "python3 -m venv ."
